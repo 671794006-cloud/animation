@@ -408,4 +408,384 @@
 <body>
 
   <h1>CSS Button Hover & Fullscreen FX</h1>
-  <p class="subtitle">ชี้เมาส์เพื่อดูเอฟเฟกต์ปุ่ม และ
+  <p class="subtitle">ชี้เมาส์เพื่อดูเอฟเฟกต์ปุ่ม และ <b>คลิกที่ปุ่ม</b> เพื่อเปิดแอนิเมชันเต็มจอ</p>
+
+  <div class="showcase">
+    <!-- ปุ่มที่ 1 -->
+    <div class="card">
+      <span class="label">Glow Fill</span>
+      <button class="btn1" onclick="triggerFX('explore', event)">Explore More</button>
+    </div>
+
+    <!-- ปุ่มที่ 2 -->
+    <div class="card">
+      <span class="label">Liquid Fill</span>
+      <button class="btn2" onclick="triggerFX('discover', event)">Discover</button>
+    </div>
+
+    <!-- ปุ่มที่ 3 -->
+    <div class="card">
+      <span class="label">Electric Border</span>
+      <button class="electric" onclick="triggerFX('launch', event)">Launch Now</button>
+    </div>
+
+    <!-- ปุ่มที่ 4 -->
+    <div class="card">
+      <span class="label">3D Press</span>
+      <button class="btn4" onclick="triggerFX('click', event)">Click Me</button>
+    </div>
+
+    <!-- ปุ่มที่ 5 -->
+    <div class="card">
+      <span class="label">Moving Gradient</span>
+      <button class="btn5" onclick="triggerFX('start', event)">Get Started</button>
+    </div>
+  </div>
+
+  <!-- หน้าจอแสดงแอนิเมชันเต็มจอ -->
+  <div class="stage" id="stage">
+    <canvas id="fxCanvas"></canvas>
+    <div class="stage-content">
+      <div class="stage-badge" id="stageBadge">MODE</div>
+      <h2 class="stage-title" id="stageTitle">Title</h2>
+      <p class="stage-desc" id="stageDesc">Description</p>
+      <button class="close-btn" onclick="closeStage()">✕ กลับไปหน้าหลัก (ESC)</button>
+    </div>
+  </div>
+
+<script>
+  const stage = document.getElementById('stage');
+  const canvas = document.getElementById('fxCanvas');
+  const ctx = canvas.getContext('2d');
+  const stageBadge = document.getElementById('stageBadge');
+  const stageTitle = document.getElementById('stageTitle');
+  const stageDesc = document.getElementById('stageDesc');
+
+  let animId = null;
+  let particles = [];
+  let startTime = 0;
+
+  function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  window.addEventListener('resize', resizeCanvas);
+  resizeCanvas();
+
+  // ข้อมูลข้อความแต่ละปุ่ม
+  const contentMap = {
+    explore: {
+      badge: 'EXPLORE MORE',
+      title: 'สำรวจมิติใหม่ไร้ขีดจำกัด',
+      desc: 'พุ่งทะยานผ่านอวกาศดิจิทัลด้วยความเร็วแสง พร้อมค้นพบฟีเจอร์และไอเดียใหม่ๆ ที่ซ่อนอยู่'
+    },
+    discover: {
+      badge: 'DISCOVER',
+      title: 'ค้นพบประสบการณ์ที่แตกต่าง',
+      desc: 'ปลดล็อกโลกแห่งความสร้างสรรค์ด้วยคลื่นสีสันที่ไหลลื่นและมีชีวิตชีวา'
+    },
+    launch: {
+      badge: 'LAUNCH NOW',
+      title: 'ระบบพร้อมทะยานสู่เป้าหมาย!',
+      desc: 'ปลดปล่อยพลังงานไฟฟ้าเต็มพิกัด เร่งความเร็วสูงสุดเพื่อเริ่มต้นโปรเจกต์ของคุณทันที'
+    },
+    click: {
+      badge: 'CLICK ME • 3D IMPACT',
+      title: 'พลังการกดระดับสูงสุด!',
+      desc: 'แรงกระแทก 3 มิติทำงานสมบูรณ์แบบ ตอบสนองทุกการคลิกอย่างทรงพลัง'
+    },
+    start: {
+      badge: 'GET STARTED',
+      title: 'ยินดีต้อนรับสู่การเริ่มต้นใหม่',
+      desc: 'ทุกอย่างถูกจัดเตรียมไว้พร้อมแล้ว ก้าวเข้าสู่โลกแห่งสีสันและเริ่มสร้างผลงานของคุณได้เลย'
+    }
+  };
+
+  function triggerFX(mode, event) {
+    if (animId) cancelAnimationFrame(animId);
+    resizeCanvas();
+
+    // ตั้งค่าข้อความและธีมพื้นหลัง
+    stage.className = 'stage active mode-' + mode;
+    stageBadge.textContent = contentMap[mode].badge;
+    stageTitle.textContent = contentMap[mode].title;
+    stageDesc.textContent = contentMap[mode].desc;
+
+    const clickX = event ? event.clientX : canvas.width / 2;
+    const clickY = event ? event.clientY : canvas.height / 2;
+    startTime = performance.now();
+    particles = [];
+
+    // 1. โหมด Explore More: อุโมงค์ดวงดาวความเร็วแสงสีฟ้า
+    if (mode === 'explore') {
+      for (let i = 0; i < 180; i++) {
+        particles.push({
+          x: (Math.random() - 0.5) * canvas.width * 2,
+          y: (Math.random() - 0.5) * canvas.height * 2,
+          z: Math.random() * canvas.width
+        });
+      }
+      let shockRadius = 0;
+
+      function loopExplore() {
+        ctx.fillStyle = 'rgba(2, 10, 20, 0.35)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // คลื่นแสงขยายจากจุดคลิก
+        if (shockRadius < Math.max(canvas.width, canvas.height) * 1.2) {
+          shockRadius += 28;
+          ctx.beginPath();
+          ctx.arc(clickX, clickY, shockRadius, 0, Math.PI * 2);
+          ctx.strokeStyle = `rgba(0, 229, 255, ${Math.max(0, 1 - shockRadius / 1000)})`;
+          ctx.lineWidth = 6;
+          ctx.stroke();
+        }
+
+        const cx = canvas.width / 2;
+        const cy = canvas.height / 2;
+        particles.forEach(p => {
+          p.z -= 18;
+          if (p.z <= 1) {
+            p.z = canvas.width;
+            p.x = (Math.random() - 0.5) * canvas.width * 2;
+            p.y = (Math.random() - 0.5) * canvas.height * 2;
+          }
+          const sx = cx + (p.x / p.z) * 280;
+          const sy = cy + (p.y / p.z) * 280;
+          const size = Math.max(1, (1 - p.z / canvas.width) * 4.5);
+
+          ctx.beginPath();
+          ctx.arc(sx, sy, size, 0, Math.PI * 2);
+          ctx.fillStyle = '#00e5ff';
+          ctx.shadowBlur = 12;
+          ctx.shadowColor = '#00e5ff';
+          ctx.fill();
+        });
+        ctx.shadowBlur = 0;
+        animId = requestAnimationFrame(loopExplore);
+      }
+      loopExplore();
+    }
+
+    // 2. โหมด Discover: คลื่นน้ำสีชมพูเอ่อท่วมเต็มจอ + ฟองอากาศ
+    else if (mode === 'discover') {
+      let waterLevel = canvas.height + 100;
+      for (let i = 0; i < 45; i++) {
+        particles.push({
+          x: Math.random() * canvas.width,
+          y: canvas.height + Math.random() * 400,
+          r: 3 + Math.random() * 9,
+          speed: 2 + Math.random() * 4
+        });
+      }
+
+      function loopDiscover(now) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        waterLevel += (-80 - waterLevel) * 0.055; // น้ำค่อยๆ ท่วมขึ้นจนเต็มจอ
+
+        // วาดคลื่น 2 ชั้น
+        for (let layer = 0; layer < 2; layer++) {
+          ctx.beginPath();
+          ctx.moveTo(0, canvas.height);
+          for (let x = 0; x <= canvas.width; x += 20) {
+            const wave = Math.sin(x * 0.008 + now * 0.004 + layer * 2) * 24;
+            ctx.lineTo(x, waterLevel + wave + layer * 18);
+          }
+          ctx.lineTo(canvas.width, canvas.height);
+          ctx.closePath();
+          ctx.fillStyle = layer === 0 ? 'rgba(255, 77, 141, 0.55)' : '#ff4d8d';
+          ctx.fill();
+        }
+
+        // ฟองอากาศลอยขึ้น
+        particles.forEach(b => {
+          b.y -= b.speed;
+          if (b.y < -20) {
+            b.y = canvas.height + 20;
+            b.x = Math.random() * canvas.width;
+          }
+          ctx.beginPath();
+          ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.28)';
+          ctx.fill();
+        });
+
+        animId = requestAnimationFrame(loopDiscover);
+      }
+      loopDiscover(startTime);
+    }
+
+    // 3. โหมด Launch Now: สายฟ้าฟาด + จรวดพลังงานพุ่งขึ้นฟ้า
+    else if (mode === 'launch') {
+      let rocketY = canvas.height + 80;
+      for (let i = 0; i < 70; i++) {
+        particles.push({
+          x: canvas.width / 2 + (Math.random() - 0.5) * 40,
+          y: canvas.height,
+          vx: (Math.random() - 0.5) * 8,
+          vy: 4 + Math.random() * 8,
+          life: Math.random()
+        });
+      }
+
+      function drawLightning(x1, y1, x2, y2) {
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        let curX = x1, curY = y1;
+        const steps = 12;
+        for (let i = 1; i <= steps; i++) {
+          const t = i / steps;
+          curX = x1 + (x2 - x1) * t + (i < steps ? (Math.random() - 0.5) * 90 : 0);
+          curY = y1 + (y2 - y1) * t;
+          ctx.lineTo(curX, curY);
+        }
+        ctx.strokeStyle = '#00e5ff';
+        ctx.lineWidth = 3;
+        ctx.shadowBlur = 20;
+        ctx.shadowColor = '#3b82f6';
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+      }
+
+      function loopLaunch() {
+        ctx.fillStyle = 'rgba(3, 8, 22, 0.32)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // สุ่มสายฟ้าวิ่งเป็นระยะ
+        if (Math.random() < 0.22) {
+          drawLightning(Math.random() * canvas.width, 0, Math.random() * canvas.width, canvas.height);
+        }
+
+        // จรวดพลังงานพุ่งขึ้น
+        if (rocketY > -150) rocketY -= 22;
+        const rx = canvas.width / 2;
+
+        // ลำแสงไอพ่น
+        const grad = ctx.createLinearGradient(rx, rocketY, rx, rocketY + 260);
+        grad.addColorStop(0, '#ffffff');
+        grad.addColorStop(0.3, '#00e5ff');
+        grad.addColorStop(1, 'transparent');
+        ctx.fillStyle = grad;
+        ctx.fillRect(rx - 8, rocketY, 16, 260);
+
+        // สะเก็ดไฟพุ่งกระจาย
+        particles.forEach(p => {
+          p.x += p.vx;
+          p.y += p.vy;
+          p.life -= 0.025;
+          if (p.life <= 0) {
+            p.x = rx + (Math.random() - 0.5) * 24;
+            p.y = Math.min(canvas.height - 20, Math.max(100, rocketY + 40));
+            p.life = 1;
+          }
+          ctx.fillStyle = `rgba(0, 229, 255, ${p.life})`;
+          ctx.fillRect(p.x, p.y, 4, 4);
+        });
+
+        animId = requestAnimationFrame(loopLaunch);
+      }
+      loopLaunch();
+    }
+
+    // 4. โหมด Click Me: จอสั่น + ระเบิดกล่อง 3D กระจายเต็มจอ
+    else if (mode === 'click') {
+      document.body.classList.remove('shake');
+      void document.body.offsetWidth;
+      document.body.classList.add('shake');
+
+      const colors = ['#5865f2', '#818cf8', '#c084fc', '#38bdf8', '#ffffff'];
+      for (let i = 0; i < 65; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const speed = 6 + Math.random() * 18;
+        particles.push({
+          x: clickX,
+          y: clickY,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed - 4,
+          size: 10 + Math.random() * 16,
+          rot: Math.random() * Math.PI,
+          vRot: (Math.random() - 0.5) * 0.2,
+          color: colors[Math.floor(Math.random() * colors.length)]
+        });
+      }
+
+      function loopClick() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach(p => {
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vy += 0.35; // แรงโน้มถ่วง
+          p.vx *= 0.98;
+          p.rot += p.vRot;
+
+          // เด้งขอบล่าง
+          if (p.y > canvas.height - p.size) {
+            p.y = canvas.height - p.size;
+            p.vy *= -0.65;
+          }
+
+          ctx.save();
+          ctx.translate(p.x, p.y);
+          ctx.rotate(p.rot);
+          ctx.fillStyle = p.color;
+          ctx.shadowBlur = 10;
+          ctx.shadowColor = 'rgba(88, 101, 242, 0.5)';
+          ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+          ctx.restore();
+        });
+        animId = requestAnimationFrame(loopClick);
+      }
+      loopClick();
+    }
+
+    // 5. โหมด Get Started: ลูกแก้วแสง Aurora ลอยนุ่มนวลเต็มจอ
+    else if (mode === 'start') {
+      for (let i = 0; i < 30; i++) {
+        particles.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          r: 20 + Math.random() * 60,
+          vx: (Math.random() - 0.5) * 2.5,
+          vy: (Math.random() - 0.5) * 2.5
+        });
+      }
+
+      function loopStart() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach(orb => {
+          orb.x += orb.vx;
+          orb.y += orb.vy;
+          if (orb.x < -60) orb.x = canvas.width + 60;
+          if (orb.x > canvas.width + 60) orb.x = -60;
+          if (orb.y < -60) orb.y = canvas.height + 60;
+          if (orb.y > canvas.height + 60) orb.y = -60;
+
+          const grad = ctx.createRadialGradient(orb.x, orb.y, 0, orb.x, orb.y, orb.r);
+          grad.addColorStop(0, 'rgba(255, 255, 255, 0.35)');
+          grad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+          ctx.fillStyle = grad;
+          ctx.beginPath();
+          ctx.arc(orb.x, orb.y, orb.r, 0, Math.PI * 2);
+          ctx.fill();
+        });
+        animId = requestAnimationFrame(loopStart);
+      }
+      loopStart();
+    }
+  }
+
+  function closeStage() {
+    stage.classList.remove('active');
+    if (animId) {
+      cancelAnimationFrame(animId);
+      animId = null;
+    }
+  }
+
+  // กดปุ่ม ESC เพื่อปิดหน้าแอนิเมชันได้ทันที
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeStage();
+  });
+</script>
+</body>
+</html>
