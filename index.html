@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>CSS Button Hover Animations</title>
+<title>Interactive Fullscreen Button Animations</title>
 <style>
   * {
     margin: 0;
@@ -20,6 +20,18 @@
     flex-direction: column;
     align-items: center;
     padding: 48px 20px;
+    overflow-x: hidden;
+  }
+
+  body.shake {
+    animation: screenShake 0.45s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+  }
+
+  @keyframes screenShake {
+    10%, 90% { transform: translate3d(-3px, 2px, 0); }
+    20%, 80% { transform: translate3d(5px, -3px, 0); }
+    30%, 50%, 70% { transform: translate3d(-7px, 4px, 0); }
+    40%, 60% { transform: translate3d(7px, -2px, 0); }
   }
 
   h1 {
@@ -62,7 +74,7 @@
   }
 
   .card:hover {
-    border-color: rgba(255, 255, 255, 0.16);
+    border-color: rgba(255, 255, 255, 0.18);
   }
 
   .label {
@@ -264,44 +276,136 @@
       background-position: 300%;
     }
   }
+
+  /* =========================================
+     FULLSCREEN OVERLAY STAGE
+     ========================================= */
+  .stage {
+    position: fixed;
+    inset: 0;
+    z-index: 999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.35s ease;
+    overflow: hidden;
+  }
+
+  .stage.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* ธีมพื้นหลังแต่ละโหมด */
+  .stage.mode-explore {
+    background: radial-gradient(circle at center, #041d29 0%, #020810 100%);
+  }
+
+  .stage.mode-discover {
+    background: #1a0612;
+  }
+
+  .stage.mode-launch {
+    background: radial-gradient(circle at center, #081838 0%, #03060f 100%);
+    box-shadow: inset 0 0 50px rgba(0, 229, 255, 0.55);
+  }
+
+  .stage.mode-click {
+    background: radial-gradient(circle at center, #1e1b4b 0%, #090a1a 100%);
+  }
+
+  .stage.mode-start {
+    background: linear-gradient(120deg, #ff0080, #7928ca, #00d4ff, #ff0080);
+    background-size: 300% 300%;
+    animation: auroraFlow 5s ease infinite;
+  }
+
+  @keyframes auroraFlow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  #fxCanvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+
+  /* กล่องข้อความตรงกลางแอนิเมชัน */
+  .stage-content {
+    position: relative;
+    z-index: 10;
+    text-align: center;
+    padding: 36px 44px;
+    border-radius: 24px;
+    background: rgba(9, 13, 24, 0.55);
+    backdrop-filter: blur(14px);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    max-width: 90vw;
+    width: 480px;
+    transform: scale(0.75) translateY(25px);
+    opacity: 0;
+    transition: transform 0.55s cubic-bezier(0.16, 1, 0.3, 1) 0.15s,
+                opacity 0.45s ease 0.15s;
+  }
+
+  .stage.active .stage-content {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+
+  .stage-badge {
+    display: inline-block;
+    padding: 6px 14px;
+    border-radius: 99px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    background: rgba(255, 255, 255, 0.12);
+    color: #ffffff;
+  }
+
+  .stage-title {
+    font-size: 34px;
+    font-weight: 800;
+    margin-bottom: 12px;
+    letter-spacing: -0.5px;
+  }
+
+  .stage-desc {
+    color: #e2e8f0;
+    font-size: 15px;
+    line-height: 1.6;
+    margin-bottom: 28px;
+  }
+
+  .close-btn {
+    padding: 12px 28px;
+    border-radius: 99px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.12);
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s ease;
+  }
+
+  .close-btn:hover {
+    background: #ffffff;
+    color: #090c14;
+    transform: scale(1.05);
+  }
 </style>
 </head>
 <body>
 
-  <h1>CSS Button Hover Animation</h1>
-  <p class="subtitle">เลื่อนเมาส์ไปชี้ที่ปุ่มแต่ละแบบเพื่อดูแอนิเมชัน</p>
-
-  <div class="showcase">
-    <!-- ปุ่มที่ 1 -->
-    <div class="card">
-      <span class="label">Glow Fill</span>
-      <button class="btn1">Explore More</button>
-    </div>
-
-    <!-- ปุ่มที่ 2 -->
-    <div class="card">
-      <span class="label">Liquid Fill</span>
-      <button class="btn2">Discover</button>
-    </div>
-
-    <!-- ปุ่มที่ 3 -->
-    <div class="card">
-      <span class="label">Electric Border</span>
-      <button class="electric">Launch Now</button>
-    </div>
-
-    <!-- ปุ่มที่ 4 -->
-    <div class="card">
-      <span class="label">3D Press</span>
-      <button class="btn4">Click Me</button>
-    </div>
-
-    <!-- ปุ่มที่ 5 -->
-    <div class="card">
-      <span class="label">Moving Gradient</span>
-      <button class="btn5">Get Started</button>
-    </div>
-  </div>
-
-</body>
-</html>
+  <h1>CSS Button Hover & Fullscreen FX</h1>
+  <p class="subtitle">ชี้เมาส์เพื่อดูเอฟเฟกต์ปุ่ม และ
