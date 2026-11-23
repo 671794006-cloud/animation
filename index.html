@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>RedBull Card Animation</title>
+<title>CSS Button Hover Animations</title>
 <style>
   * {
     margin: 0;
@@ -13,290 +13,293 @@
   }
 
   body {
-    display: flex;
-    justify-content: center;
-    align-items: center;
     min-height: 100vh;
-    background: #070a12;
-    overflow: hidden;
+    background: #090c14;
+    color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 48px 20px;
   }
 
-  /* 1. พื้นหลังจุดแสงลอยตัว */
-  .bg {
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    overflow: hidden;
+  h1 {
+    font-size: 28px;
+    font-weight: 800;
+    margin-bottom: 8px;
+    background: linear-gradient(90deg, #60a5fa, #a78bfa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-align: center;
   }
 
-  .bg span {
-    position: absolute;
-    bottom: -20px;
-    left: calc(var(--x) * 1%);
-    width: 3px;
-    height: 3px;
-    background: rgba(147, 197, 253, 0.55);
-    border-radius: 50%;
-    box-shadow: 0 0 8px rgba(96, 165, 250, 0.8);
-    animation: floatUp calc(180s / var(--i)) linear infinite;
-    animation-delay: calc(var(--d) * -1s);
+  .subtitle {
+    color: #94a3b8;
+    font-size: 14px;
+    margin-bottom: 36px;
+    text-align: center;
   }
 
-  @keyframes floatUp {
-    0% {
-      transform: translateY(0) scale(0.8);
-      opacity: 0;
-    }
-    20% { opacity: 0.9; }
-    80% { opacity: 0.6; }
-    100% {
-      transform: translateY(-105vh) scale(1.2);
-      opacity: 0;
-    }
+  /* โครงสร้างจัดเรียงการ์ดปุ่มทั้งหมด */
+  .showcase {
+    width: 100%;
+    max-width: 860px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
   }
 
-  /* 2. ตัวการ์ดหลัก (เริ่มต้นเป็นวงกลม) */
   .card {
-    position: relative;
-    width: 240px;
-    height: 240px;
-    border-radius: 50%;
+    background: #111623;
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 16px;
+    padding: 36px 24px;
     display: flex;
+    flex-direction: column;
     align-items: center;
-    cursor: pointer;
-    transition: width 0.5s cubic-bezier(0.25, 0.8, 0.25, 1),
-                height 0.5s cubic-bezier(0.25, 0.8, 0.25, 1),
-                border-radius 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
-  }
-
-  .card:hover,
-  .card:focus-within {
-    width: 490px;
-    height: 260px;
-    border-radius: 20px;
-  }
-
-  /* พื้นหลังและขอบเรืองแสงของการ์ด */
-  .card .circle {
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    overflow: hidden;
-    display: flex;
     justify-content: center;
-    align-items: center;
-    background: radial-gradient(circle at center, #0c1224 55%, #16244d 88%, #223b80 100%);
-    box-shadow: 0 0 30px rgba(59, 130, 246, 0.35),
-                inset 0 0 24px rgba(96, 165, 250, 0.35);
-    transition: background 0.5s ease, box-shadow 0.5s ease;
+    gap: 20px;
+    transition: border-color 0.3s ease;
   }
 
-  .card:hover .circle,
-  .card:focus-within .circle {
-    background: linear-gradient(135deg, #101936 0%, #172554 100%);
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65),
-                0 0 40px rgba(37, 99, 235, 0.25),
-                inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+  .card:hover {
+    border-color: rgba(255, 255, 255, 0.16);
   }
 
-  /* 3. โลโก้ตรงกลางตอนยังไม่ Hover */
-  .card .logo {
-    width: 155px;
-    height: auto;
-    transform: scale(1);
-    opacity: 1;
-    transition: transform 0.35s ease, opacity 0.35s ease;
-    transition-delay: 0.25s;
+  .label {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #64748b;
   }
 
-  .card:hover .logo,
-  .card:focus-within .logo {
-    transform: scale(0);
-    opacity: 0;
-    transition-delay: 0s;
+  /* =========================================
+     1. CSS - GLOW FILL
+     ========================================= */
+  .btn1 {
+    position: relative;
+    padding: 15px 40px;
+    border: 1px solid #00e5ff;
+    border-radius: 30px;
+    background: transparent;
+    color: #00e5ff;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    overflow: hidden;
+    z-index: 1;
+    transition: 0.4s;
   }
 
-  /* 4. กระป๋อง RedBull ลอยเอียงฝั่งขวา */
-  .card .product_img {
+  .btn1::before {
+    content: "";
     position: absolute;
     top: 50%;
-    right: 26px;
-    width: 122px;
-    height: auto;
-    transform: translateY(-50%) scale(0) rotate(0deg);
-    opacity: 0;
-    filter: drop-shadow(0 18px 24px rgba(0, 0, 0, 0.65));
-    transition: transform 0.45s cubic-bezier(0.2, 0.85, 0.25, 1.1),
-                opacity 0.35s ease;
-    transition-delay: 0s;
-    z-index: 3;
-    pointer-events: none;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: #00e5ff;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: 0.4s;
+    z-index: -1;
   }
 
-  .card:hover .product_img,
-  .card:focus-within .product_img {
-    transform: translateY(-50%) scale(1) rotate(14deg);
-    opacity: 1;
-    transition-delay: 0.22s;
+  .btn1:hover {
+    color: #071014;
+    box-shadow: 0 0 20px #00e5ff;
+    transform: translateY(-5px);
   }
 
-  /* 5. ข้อความและปุ่มฝั่งซ้าย */
-  .card .content {
+  .btn1:hover::before {
+    width: 350px;
+    height: 350px;
+  }
+
+  /* =========================================
+     2. CSS - LIQUID FILL
+     ========================================= */
+  .btn2 {
     position: relative;
-    width: 62%;
-    left: 16%;
-    padding: 24px 16px 24px 34px;
-    opacity: 0;
-    visibility: hidden;
-    z-index: 2;
-    transition: left 0.4s ease, opacity 0.4s ease, visibility 0.4s ease;
-    transition-delay: 0s;
-  }
-
-  .card:hover .content,
-  .card:focus-within .content {
-    left: 0;
-    opacity: 1;
-    visibility: visible;
-    transition-delay: 0.22s;
-  }
-
-  .card .content h2 {
-    color: #ffffff;
-    font-size: 26px;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 10px;
-  }
-
-  .card .content p {
-    color: #cbd5e1;
-    font-size: 13.5px;
-    line-height: 1.55;
-    margin-bottom: 18px;
-  }
-
-  .card .content a {
-    display: inline-block;
-    padding: 9px 20px;
-    background: #dc2626;
-    color: #ffffff;
-    font-size: 13.5px;
+    padding: 15px 42px;
+    border: 2px solid #ff4d8d;
+    border-radius: 10px;
+    background: transparent;
+    color: #ff4d8d;
+    font-size: 15px;
     font-weight: 600;
-    text-decoration: none;
-    border-radius: 6px;
-    transition: background 0.25s ease, color 0.25s ease, transform 0.2s ease;
+    cursor: pointer;
+    overflow: hidden;
+    z-index: 1;
+    transition: 0.4s;
   }
 
-  .card .content a:hover {
-    background: #ffffff;
-    color: #0f172a;
-    transform: translateY(-1px);
+  .btn2::before {
+    content: "";
+    position: absolute;
+    width: 220px;
+    height: 220px;
+    left: 50%;
+    top: 100%;
+    transform: translateX(-50%);
+    background: #ff4d8d;
+    border-radius: 45%;
+    transition: 0.8s;
+    z-index: -1;
   }
 
-  /* ปรับขนาดอัตโนมัติหากเปิดบนหน้าจอมือถือเล็ก */
-  @media (max-width: 520px) {
-    .card:hover,
-    .card:focus-within {
-      width: 92vw;
-      height: 250px;
+  .btn2:hover {
+    color: #ffffff;
+  }
+
+  .btn2:hover::before {
+    top: -65%;
+    transform: translateX(-50%) rotate(180deg);
+  }
+
+  /* =========================================
+     3. CSS - ELECTRIC BORDER
+     ========================================= */
+  .electric {
+    position: relative;
+    padding: 16px 45px;
+    border: 0;
+    border-radius: 12px;
+    background: #090d18;
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    isolation: isolate;
+    overflow: hidden;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+  }
+
+  .electric::before {
+    content: "";
+    position: absolute;
+    width: 220%;
+    height: 220%;
+    top: -60%;
+    left: -60%;
+    background: conic-gradient(
+      transparent 0deg,
+      #00e5ff 45deg,
+      #3b82f6 90deg,
+      transparent 140deg
+    );
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    animation: electric 1.5s linear infinite;
+    z-index: -2;
+  }
+
+  .electric::after {
+    content: "";
+    position: absolute;
+    inset: 2px;
+    border-radius: 10px;
+    background: #090d18;
+    z-index: -1;
+  }
+
+  .electric:hover::before {
+    opacity: 1;
+  }
+
+  .electric:hover {
+    box-shadow: 0 0 20px rgba(0, 229, 255, 0.25);
+  }
+
+  @keyframes electric {
+    to {
+      transform: rotate(360deg);
     }
-    .card .content {
-      padding-left: 22px;
-      width: 64%;
-    }
-    .card .product_img {
-      width: 100px;
-      right: 16px;
+  }
+
+  /* =========================================
+     4. CSS - 3D PRESS
+     ========================================= */
+  .btn4 {
+    padding: 16px 45px;
+    border: 0;
+    border-radius: 10px;
+    background: #5865f2;
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 7px #383a9e;
+    transition: 0.15s;
+  }
+
+  .btn4:hover {
+    transform: translateY(5px);
+    box-shadow: 0 2px #383a9e;
+  }
+
+  /* =========================================
+     5. CSS - MOVING GRADIENT
+     ========================================= */
+  .btn5 {
+    padding: 16px 45px;
+    border: 0;
+    border-radius: 50px;
+    background: linear-gradient(90deg, #ff0080, #7928ca, #00d4ff, #ff0080);
+    background-size: 300%;
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+  }
+
+  .btn5:hover {
+    animation: gradient 1.5s linear infinite;
+    transform: scale(1.05);
+  }
+
+  @keyframes gradient {
+    to {
+      background-position: 300%;
     }
   }
 </style>
 </head>
 <body>
 
-  <!-- จุดแสงลอยในพื้นหลัง -->
-  <div class="bg">
-    <span style="--i: 17; --x: 12; --d: 2"></span>
-    <span style="--i: 13; --x: 24; --d: 7"></span>
-    <span style="--i: 28; --x: 35; --d: 4"></span>
-    <span style="--i: 19; --x: 48; --d: 9"></span>
-    <span style="--i: 22; --x: 61; --d: 1"></span>
-    <span style="--i: 15; --x: 73; --d: 6"></span>
-    <span style="--i: 25; --x: 86; --d: 3"></span>
-    <span style="--i: 18; --x: 18; --d: 11"></span>
-    <span style="--i: 21; --x: 42; --d: 5"></span>
-    <span style="--i: 14; --x: 67; --d: 8"></span>
-    <span style="--i: 26; --x: 91; --d: 10"></span>
-    <span style="--i: 16; --x: 54; --d: 12"></span>
-  </div>
+  <h1>CSS Button Hover Animation</h1>
+  <p class="subtitle">เลื่อนเมาส์ไปชี้ที่ปุ่มแต่ละแบบเพื่อดูแอนิเมชัน</p>
 
-  <!-- การ์ดสินค้า RedBull -->
-  <div class="card" tabindex="0">
-    <div class="circle">
-      <!-- โลโก้ RedBull (SVG) -->
-      <svg class="logo" viewBox="0 0 220 140" xmlns="http://www.w3.org/2000/svg">
-        <!-- ดวงอาทิตย์สีเหลือง -->
-        <circle cx="110" cy="48" r="22" fill="#facc15" />
-        <!-- กระทิงซ้าย -->
-        <path d="M52 56 C62 42, 78 40, 92 46 L104 51 L97 57 L103 63 L86 63 L81 71 L75 62 L62 64 L54 71 L58 60 C48 59, 43 52, 42 45 C46 50, 49 53, 52 56 Z" fill="#dc2626"/>
-        <path d="M95 45 C101 41, 106 42, 108 46 C103 45, 99 46, 95 48 Z" fill="#dc2626"/>
-        <!-- กระทิงขวา -->
-        <path d="M168 56 C158 42, 142 40, 128 46 L116 51 L123 57 L117 63 L134 63 L139 71 L145 62 L158 64 L166 71 L162 60 C172 59, 177 52, 178 45 C174 50, 171 53, 168 56 Z" fill="#dc2626"/>
-        <path d="M125 45 C119 41, 114 42, 112 46 C117 45, 121 46, 125 48 Z" fill="#dc2626"/>
-        <!-- ข้อความ Red Bull -->
-        <text x="110" y="108" text-anchor="middle" fill="#dc2626" font-family="Arial Black, Impact, sans-serif" font-weight="900" font-size="34" letter-spacing="-0.5">Red Bull</text>
-      </svg>
+  <div class="showcase">
+    <!-- ปุ่มที่ 1 -->
+    <div class="card">
+      <span class="label">Glow Fill</span>
+      <button class="btn1">Explore More</button>
     </div>
 
-    <!-- กระป๋อง RedBull (SVG) -->
-    <svg class="product_img" viewBox="0 0 140 340" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <clipPath id="canBody">
-          <rect x="20" y="20" width="100" height="300" rx="14" />
-        </clipPath>
-        <!-- แสงเงาทรงกระบอก 3D -->
-        <linearGradient id="cylinderShade" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stop-color="#000000" stop-opacity="0.38" />
-          <stop offset="22%" stop-color="#ffffff" stop-opacity="0.28" />
-          <stop offset="48%" stop-color="#ffffff" stop-opacity="0.05" />
-          <stop offset="82%" stop-color="#000000" stop-opacity="0.22" />
-          <stop offset="100%" stop-color="#000000" stop-opacity="0.48" />
-        </linearGradient>
-      </defs>
+    <!-- ปุ่มที่ 2 -->
+    <div class="card">
+      <span class="label">Liquid Fill</span>
+      <button class="btn2">Discover</button>
+    </div>
 
-      <!-- ขอบฝาบนและก้นกระป๋อง -->
-      <rect x="25" y="13" width="90" height="12" rx="6" fill="#cbd5e1" />
-      <rect x="26" y="315" width="88" height="12" rx="6" fill="#94a3b8" />
+    <!-- ปุ่มที่ 3 -->
+    <div class="card">
+      <span class="label">Electric Border</span>
+      <button class="electric">Launch Now</button>
+    </div>
 
-      <!-- ลวดลายตารางสีน้ำเงิน-เงินบนกระป๋อง -->
-      <g clip-path="url(#canBody)">
-        <rect x="20" y="20" width="100" height="300" fill="#e2e8f0" />
-        <!-- ช่องสีน้ำเงินบนซ้ายและล่างขวา -->
-        <polygon points="20,20 74,20 74,165 20,185" fill="#1d4ed8" />
-        <polygon points="74,165 120,148 120,320 74,320" fill="#1e3a8a" />
-        <!-- แถบข้อความด้านบน -->
-        <text x="70" y="54" text-anchor="middle" fill="#dc2626" font-family="Arial Black, sans-serif" font-weight="900" font-size="18">Red Bull</text>
-        <!-- ดวงอาทิตย์และกระทิงคู่ตรงกลางกระป๋อง -->
-        <circle cx="70" cy="158" r="16" fill="#facc15" />
-        <path d="M34 162 C42 152, 52 151, 61 155 L68 158 L63 163 L67 167 L55 167 L51 172 L47 166 L38 167 Z" fill="#dc2626"/>
-        <path d="M106 162 C98 152, 88 151, 79 155 L72 158 L77 163 L73 167 L85 167 L89 172 L93 166 L102 167 Z" fill="#dc2626"/>
-        <!-- ข้อความ ENERGY DRINK ด้านล่าง -->
-        <text x="70" y="275" text-anchor="middle" fill="#1e3a8a" font-family="Arial, sans-serif" font-weight="800" font-size="11" letter-spacing="1">ENERGY</text>
-        <text x="70" y="288" text-anchor="middle" fill="#ffffff" font-family="Arial, sans-serif" font-weight="700" font-size="10" letter-spacing="1.5">DRINK</text>
-        <!-- ทับแสงเงาทรงกระบอก -->
-        <rect x="20" y="20" width="100" height="300" fill="url(#cylinderShade)" />
-      </g>
-    </svg>
+    <!-- ปุ่มที่ 4 -->
+    <div class="card">
+      <span class="label">3D Press</span>
+      <button class="btn4">Click Me</button>
+    </div>
 
-    <!-- เนื้อหาฝั่งซ้าย -->
-    <div class="content">
-      <h2>RedBull</h2>
-      <p>
-        RedBull gives you wings! A refreshing energy drink that revitalizes
-        body and mind.
-      </p>
-      <a href="#">Shop Now</a>
+    <!-- ปุ่มที่ 5 -->
+    <div class="card">
+      <span class="label">Moving Gradient</span>
+      <button class="btn5">Get Started</button>
     </div>
   </div>
 
