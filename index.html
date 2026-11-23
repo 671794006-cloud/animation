@@ -1,167 +1,304 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-<meta charset="UTF-8">
-<title>OTP Verification Animation</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>RedBull Card Animation</title>
 <style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  }
+
   body {
-    background: #0d0e12; color: #fff; font-family: system-ui, sans-serif;
-    display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: #070a12;
+    overflow: hidden;
   }
+
+  /* 1. พื้นหลังจุดแสงลอยตัว */
+  .bg {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .bg span {
+    position: absolute;
+    bottom: -20px;
+    left: calc(var(--x) * 1%);
+    width: 3px;
+    height: 3px;
+    background: rgba(147, 197, 253, 0.55);
+    border-radius: 50%;
+    box-shadow: 0 0 8px rgba(96, 165, 250, 0.8);
+    animation: floatUp calc(180s / var(--i)) linear infinite;
+    animation-delay: calc(var(--d) * -1s);
+  }
+
+  @keyframes floatUp {
+    0% {
+      transform: translateY(0) scale(0.8);
+      opacity: 0;
+    }
+    20% { opacity: 0.9; }
+    80% { opacity: 0.6; }
+    100% {
+      transform: translateY(-105vh) scale(1.2);
+      opacity: 0;
+    }
+  }
+
+  /* 2. ตัวการ์ดหลัก (เริ่มต้นเป็นวงกลม) */
   .card {
-    background: #161821; padding: 32px; border-radius: 24px; text-align: center; width: 320px;
+    position: relative;
+    width: 240px;
+    height: 240px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    transition: width 0.5s cubic-bezier(0.25, 0.8, 0.25, 1),
+                height 0.5s cubic-bezier(0.25, 0.8, 0.25, 1),
+                border-radius 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
   }
-  .otp-wrapper {
-    position: relative; margin: 24px auto; width: 276px; height: 180px;
-    display: flex; justify-content: center; align-items: center;
+
+  .card:hover,
+  .card:focus-within {
+    width: 490px;
+    height: 260px;
+    border-radius: 20px;
   }
-  #otp {
-    position: absolute; inset: 0; opacity: 0; z-index: 10; cursor: pointer;
+
+  /* พื้นหลังและขอบเรืองแสงของการ์ด */
+  .card .circle {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: radial-gradient(circle at center, #0c1224 55%, #16244d 88%, #223b80 100%);
+    box-shadow: 0 0 30px rgba(59, 130, 246, 0.35),
+                inset 0 0 24px rgba(96, 165, 250, 0.35);
+    transition: background 0.5s ease, box-shadow 0.5s ease;
   }
-  /* เพิ่ม width: fit-content และ margin: 0 auto เพื่อให้หดตรงกลางพอดีเมื่อ gap เป็น 0 */
-  .shunt-grid {
-    display: grid; grid-template-columns: repeat(3, 84px); grid-template-rows: repeat(2, 84px);
-    gap: 12px; position: relative; width: fit-content; margin: 0 auto;
-    transition: gap 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  .card:hover .circle,
+  .card:focus-within .circle {
+    background: linear-gradient(135deg, #101936 0%, #172554 100%);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65),
+                0 0 40px rgba(37, 99, 235, 0.25),
+                inset 0 0 0 1px rgba(255, 255, 255, 0.08);
   }
-  .focus-ring {
-    position: absolute; width: 84px; height: 84px; border-radius: 16px;
-    border: 2px solid #8b7eff; box-shadow: 0 0 16px rgba(139, 126, 255, 0.5);
-    pointer-events: none; transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.2s;
-    z-index: 5; box-sizing: border-box;
+
+  /* 3. โลโก้ตรงกลางตอนยังไม่ Hover */
+  .card .logo {
+    width: 155px;
+    height: auto;
+    transform: scale(1);
+    opacity: 1;
+    transition: transform 0.35s ease, opacity 0.35s ease;
+    transition-delay: 0.25s;
   }
-  .shunt-tile {
-    perspective: 800px; border-radius: 16px; overflow: hidden;
-    transition: border-radius 0.35s ease;
+
+  .card:hover .logo,
+  .card:focus-within .logo {
+    transform: scale(0);
+    opacity: 0;
+    transition-delay: 0s;
   }
-  .shunt-flip {
-    width: 100%; height: 100%; position: relative;
-    transform-style: preserve-3d; transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* 4. กระป๋อง RedBull ลอยเอียงฝั่งขวา */
+  .card .product_img {
+    position: absolute;
+    top: 50%;
+    right: 26px;
+    width: 122px;
+    height: auto;
+    transform: translateY(-50%) scale(0) rotate(0deg);
+    opacity: 0;
+    filter: drop-shadow(0 18px 24px rgba(0, 0, 0, 0.65));
+    transition: transform 0.45s cubic-bezier(0.2, 0.85, 0.25, 1.1),
+                opacity 0.35s ease;
+    transition-delay: 0s;
+    z-index: 3;
+    pointer-events: none;
   }
-  .front, .back {
-    position: absolute; inset: 0; backface-visibility: hidden;
-    display: flex; align-items: center; justify-content: center;
+
+  .card:hover .product_img,
+  .card:focus-within .product_img {
+    transform: translateY(-50%) scale(1) rotate(14deg);
+    opacity: 1;
+    transition-delay: 0.22s;
   }
-  .front { background: #222533; font-size: 28px; font-weight: 600; }
-  .back { background: #14332a; transform: rotateY(180deg); overflow: hidden; }
-  /* ปรับขนาด SVG เป็น 252x168 (ขนาดตอนช่องชิดกันพอดี) เพื่อไม่ให้ภาพแหว่ง */
-  .back svg {
-    position: absolute; width: 252px; height: 168px; max-width: none;
+
+  /* 5. ข้อความและปุ่มฝั่งซ้าย */
+  .card .content {
+    position: relative;
+    width: 62%;
+    left: 16%;
+    padding: 24px 16px 24px 34px;
+    opacity: 0;
+    visibility: hidden;
+    z-index: 2;
+    transition: left 0.4s ease, opacity 0.4s ease, visibility 0.4s ease;
+    transition-delay: 0s;
   }
-  .shunt-grid[data-flipped] .shunt-flip { transform: rotateY(180deg); }
-  .shunt-grid[data-flipped] .focus-ring { opacity: 0; }
-  .shunt-grid[data-merged] {
-    gap: 0; border-radius: 16px; overflow: hidden;
-    box-shadow: 0 0 24px rgba(52, 211, 153, 0.15);
+
+  .card:hover .content,
+  .card:focus-within .content {
+    left: 0;
+    opacity: 1;
+    visibility: visible;
+    transition-delay: 0.22s;
   }
-  .shunt-grid[data-merged] .shunt-tile { border-radius: 0; }
+
+  .card .content h2 {
+    color: #ffffff;
+    font-size: 26px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 10px;
+  }
+
+  .card .content p {
+    color: #cbd5e1;
+    font-size: 13.5px;
+    line-height: 1.55;
+    margin-bottom: 18px;
+  }
+
+  .card .content a {
+    display: inline-block;
+    padding: 9px 20px;
+    background: #dc2626;
+    color: #ffffff;
+    font-size: 13.5px;
+    font-weight: 600;
+    text-decoration: none;
+    border-radius: 6px;
+    transition: background 0.25s ease, color 0.25s ease, transform 0.2s ease;
+  }
+
+  .card .content a:hover {
+    background: #ffffff;
+    color: #0f172a;
+    transform: translateY(-1px);
+  }
+
+  /* ปรับขนาดอัตโนมัติหากเปิดบนหน้าจอมือถือเล็ก */
+  @media (max-width: 520px) {
+    .card:hover,
+    .card:focus-within {
+      width: 92vw;
+      height: 250px;
+    }
+    .card .content {
+      padding-left: 22px;
+      width: 64%;
+    }
+    .card .product_img {
+      width: 100px;
+      right: 16px;
+    }
+  }
 </style>
 </head>
 <body>
 
-<div class="card">
-  <h3 id="title">Check your phone</h3>
-  <p id="sub" style="color:#8e93a4;font-size:14px;">ลองพิมพ์รหัส <b>270364</b></p>
+  <!-- จุดแสงลอยในพื้นหลัง -->
+  <div class="bg">
+    <span style="--i: 17; --x: 12; --d: 2"></span>
+    <span style="--i: 13; --x: 24; --d: 7"></span>
+    <span style="--i: 28; --x: 35; --d: 4"></span>
+    <span style="--i: 19; --x: 48; --d: 9"></span>
+    <span style="--i: 22; --x: 61; --d: 1"></span>
+    <span style="--i: 15; --x: 73; --d: 6"></span>
+    <span style="--i: 25; --x: 86; --d: 3"></span>
+    <span style="--i: 18; --x: 18; --d: 11"></span>
+    <span style="--i: 21; --x: 42; --d: 5"></span>
+    <span style="--i: 14; --x: 67; --d: 8"></span>
+    <span style="--i: 26; --x: 91; --d: 10"></span>
+    <span style="--i: 16; --x: 54; --d: 12"></span>
+  </div>
 
-  <div class="otp-wrapper">
-    <input id="otp" type="text" inputmode="numeric" maxlength="6" autocomplete="one-time-code" autofocus>
-    <div class="shunt-grid" id="grid">
-      <div class="focus-ring" id="ring"></div>
+  <!-- การ์ดสินค้า RedBull -->
+  <div class="card" tabindex="0">
+    <div class="circle">
+      <!-- โลโก้ RedBull (SVG) -->
+      <svg class="logo" viewBox="0 0 220 140" xmlns="http://www.w3.org/2000/svg">
+        <!-- ดวงอาทิตย์สีเหลือง -->
+        <circle cx="110" cy="48" r="22" fill="#facc15" />
+        <!-- กระทิงซ้าย -->
+        <path d="M52 56 C62 42, 78 40, 92 46 L104 51 L97 57 L103 63 L86 63 L81 71 L75 62 L62 64 L54 71 L58 60 C48 59, 43 52, 42 45 C46 50, 49 53, 52 56 Z" fill="#dc2626"/>
+        <path d="M95 45 C101 41, 106 42, 108 46 C103 45, 99 46, 95 48 Z" fill="#dc2626"/>
+        <!-- กระทิงขวา -->
+        <path d="M168 56 C158 42, 142 40, 128 46 L116 51 L123 57 L117 63 L134 63 L139 71 L145 62 L158 64 L166 71 L162 60 C172 59, 177 52, 178 45 C174 50, 171 53, 168 56 Z" fill="#dc2626"/>
+        <path d="M125 45 C119 41, 114 42, 112 46 C117 45, 121 46, 125 48 Z" fill="#dc2626"/>
+        <!-- ข้อความ Red Bull -->
+        <text x="110" y="108" text-anchor="middle" fill="#dc2626" font-family="Arial Black, Impact, sans-serif" font-weight="900" font-size="34" letter-spacing="-0.5">Red Bull</text>
+      </svg>
+    </div>
+
+    <!-- กระป๋อง RedBull (SVG) -->
+    <svg class="product_img" viewBox="0 0 140 340" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <clipPath id="canBody">
+          <rect x="20" y="20" width="100" height="300" rx="14" />
+        </clipPath>
+        <!-- แสงเงาทรงกระบอก 3D -->
+        <linearGradient id="cylinderShade" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#000000" stop-opacity="0.38" />
+          <stop offset="22%" stop-color="#ffffff" stop-opacity="0.28" />
+          <stop offset="48%" stop-color="#ffffff" stop-opacity="0.05" />
+          <stop offset="82%" stop-color="#000000" stop-opacity="0.22" />
+          <stop offset="100%" stop-color="#000000" stop-opacity="0.48" />
+        </linearGradient>
+      </defs>
+
+      <!-- ขอบฝาบนและก้นกระป๋อง -->
+      <rect x="25" y="13" width="90" height="12" rx="6" fill="#cbd5e1" />
+      <rect x="26" y="315" width="88" height="12" rx="6" fill="#94a3b8" />
+
+      <!-- ลวดลายตารางสีน้ำเงิน-เงินบนกระป๋อง -->
+      <g clip-path="url(#canBody)">
+        <rect x="20" y="20" width="100" height="300" fill="#e2e8f0" />
+        <!-- ช่องสีน้ำเงินบนซ้ายและล่างขวา -->
+        <polygon points="20,20 74,20 74,165 20,185" fill="#1d4ed8" />
+        <polygon points="74,165 120,148 120,320 74,320" fill="#1e3a8a" />
+        <!-- แถบข้อความด้านบน -->
+        <text x="70" y="54" text-anchor="middle" fill="#dc2626" font-family="Arial Black, sans-serif" font-weight="900" font-size="18">Red Bull</text>
+        <!-- ดวงอาทิตย์และกระทิงคู่ตรงกลางกระป๋อง -->
+        <circle cx="70" cy="158" r="16" fill="#facc15" />
+        <path d="M34 162 C42 152, 52 151, 61 155 L68 158 L63 163 L67 167 L55 167 L51 172 L47 166 L38 167 Z" fill="#dc2626"/>
+        <path d="M106 162 C98 152, 88 151, 79 155 L72 158 L77 163 L73 167 L85 167 L89 172 L93 166 L102 167 Z" fill="#dc2626"/>
+        <!-- ข้อความ ENERGY DRINK ด้านล่าง -->
+        <text x="70" y="275" text-anchor="middle" fill="#1e3a8a" font-family="Arial, sans-serif" font-weight="800" font-size="11" letter-spacing="1">ENERGY</text>
+        <text x="70" y="288" text-anchor="middle" fill="#ffffff" font-family="Arial, sans-serif" font-weight="700" font-size="10" letter-spacing="1.5">DRINK</text>
+        <!-- ทับแสงเงาทรงกระบอก -->
+        <rect x="20" y="20" width="100" height="300" fill="url(#cylinderShade)" />
+      </g>
+    </svg>
+
+    <!-- เนื้อหาฝั่งซ้าย -->
+    <div class="content">
+      <h2>RedBull</h2>
+      <p>
+        RedBull gives you wings! A refreshing energy drink that revitalizes
+        body and mind.
+      </p>
+      <a href="#">Shop Now</a>
     </div>
   </div>
-</div>
 
-<script>
-  const CORRECT_CODE = "270364";
-  const grid = document.getElementById("grid");
-  const input = document.getElementById("otp");
-  const ring = document.getElementById("ring");
-  const tiles = [];
-
-  // สร้างช่อง 3x2 โดยอ้างอิงระยะ 84px ต่อช่องให้ภาพต่อกันสนิทเมื่อยุบรวม
-  for (let i = 0; i < 6; i++) {
-    const col = i % 3, row = Math.floor(i / 3);
-    const tile = document.createElement("div");
-    tile.className = "shunt-tile";
-    tile.innerHTML = `
-      <div class="shunt-flip" style="transition-delay: ${i * 40}ms">
-        <div class="front"></div>
-        <div class="back">
-          <svg viewBox="0 0 252 168" style="left: ${-col * 84}px; top: ${-row * 84}px;">
-            <circle cx="126" cy="84" r="52" fill="none" stroke="#34d399" stroke-width="10"/>
-            <path d="M104 85 L119 100 L150 69" fill="none" stroke="#34d399" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </div>
-      </div>`;
-    grid.appendChild(tile);
-    tiles.push(tile);
-  }
-
-  function updateUI() {
-    const val = input.value.replace(/\D/g, "").slice(0, 6);
-    input.value = val;
-    tiles.forEach((t, idx) => t.querySelector(".front").textContent = val[idx] || "");
-
-    const activeIdx = Math.min(val.length, 5);
-    const x = (activeIdx % 3) * (84 + 12);
-    const y = Math.floor(activeIdx / 3) * (84 + 12);
-    ring.style.transform = `translate(${x}px, ${y}px)`;
-
-    if (val.length === 6) {
-      if (val === CORRECT_CODE) verifySuccess();
-      else document.getElementById("sub").innerHTML = `<span style="color:#f87171">รหัสไม่ถูกต้อง ลอง 270364</span>`;
-    }
-  }
-
-  function swapDOM(i, j) {
-    const parent = grid;
-    const nodeA = parent.querySelectorAll(".shunt-tile")[i];
-    const nodeB = parent.querySelectorAll(".shunt-tile")[j];
-    const siblingA = nodeA.nextSibling === nodeB ? nodeA : nodeA.nextSibling;
-    nodeB.parentNode.insertBefore(nodeA, nodeB);
-    parent.insertBefore(nodeB, siblingA);
-  }
-
-  function animateSwap(i, j, tempo) {
-    const currentTiles = grid.querySelectorAll(".shunt-tile");
-    const a = currentTiles[i], b = currentTiles[j];
-    const firstA = a.getBoundingClientRect(), firstB = b.getBoundingClientRect();
-    swapDOM(i, j);
-    const lastA = a.getBoundingClientRect(), lastB = b.getBoundingClientRect();
-
-    [ [a, firstA, lastA], [b, firstB, lastB] ].forEach(([el, first, last]) => {
-      el.style.transition = "none";
-      el.style.transform = `translate(${first.left - last.left}px, ${first.top - last.top}px)`;
-      requestAnimationFrame(() => {
-        el.style.transition = `transform ${tempo}ms cubic-bezier(0.2, 0.8, 0.2, 1)`;
-        el.style.transform = "translate(0, 0)";
-      });
-    });
-  }
-
-  function verifySuccess() {
-    input.disabled = true;
-    const trail = [0, 1, 4, 3, 0, 1, 2, 5];
-    for (let i = 0; i < trail.length - 1; i++) swapDOM(trail[i], trail[i + 1]);
-
-    grid.setAttribute("data-flipped", "");
-
-    const tempo = 160;
-    let delay = 600;
-    for (let i = trail.length - 2; i >= 0; i--) {
-      setTimeout(() => animateSwap(trail[i], trail[i + 1], tempo), delay);
-      delay += tempo + 30;
-    }
-
-    setTimeout(() => {
-      grid.setAttribute("data-merged", "");
-      document.getElementById("title").textContent = "You're verified";
-      document.getElementById("sub").textContent = "Your number is confirmed on this device.";
-    }, delay + 100);
-  }
-
-  input.addEventListener("input", updateUI);
-  updateUI();
-</script>
 </body>
 </html>
